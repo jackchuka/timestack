@@ -1,0 +1,38 @@
+{
+  "name": "timestack",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "jackchuka",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jackchuka/timestack.git"
+  },
+  "description": "Time, in layers. A countdown timer that nests.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:types": "tsc --noEmit",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "lint": "oxlint src/ tests/",
+    "fmt": "oxfmt .",
+    "knip": "knip"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.1",
+    "@types/node": "^25.5.0",
+    "jsdom": "^29.0.1",
+    "knip": "^6.0.4",
+    "oxfmt": "^0.42.0",
+    "oxlint": "^1.57.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.2",
+    "vite-plugin-singlefile": "^2.3.2",
+    "vitest": "^4.1.1"
+  },
+  "packageManager": "pnpm@10.32.1"
+}

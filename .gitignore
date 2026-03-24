@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.DS_Store
+.env
+pnpm-debug.log
+npm-debug.log
+/tmp
+
+# IDE
+.vscode/
+.idea/
+
+# Tauri
+src-tauri/target/

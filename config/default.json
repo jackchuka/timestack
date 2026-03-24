@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "title": "Daily Standup",
+  "config": {
+    "defaultMode": "hard",
+    "warningAt": 10
+  },
+  "root": {
+    "name": "Standup",
+    "children": [
+      {
+        "name": "Team A",
+        "color": "#7c9cbf",
+        "children": [
+          { "name": "Updates", "duration": "2m" },
+          { "name": "Blockers", "duration": "1m" }
+        ]
+      },
+      {
+        "name": "Team B",
+        "color": "#7bc5a3",
+        "children": [
+          { "name": "Updates", "duration": "2m" },
+          { "name": "Blockers", "duration": "1m" }
+        ]
+      },
+      { "name": "Open Discussion", "duration": "5m", "mode": "soft" },
+      { "name": "Action Items", "duration": "2m", "mode": "soft" }
+    ]
+  }
+}
