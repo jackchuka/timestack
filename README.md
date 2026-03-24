@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.svg" alt="Timestack" width="120" />
+<img src="assets/logo.svg" alt="Timestack" width="120" />
 
 # Timestack
 
@@ -10,15 +10,24 @@
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-vanilla-3178c6.svg)]()
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)]()
 
+Timestack is a countdown timer that nests. Define your agenda as a tree of timed segments — meetings, focus sessions, or anything with structure — and Timestack counts down through each layer with visual cues and audio alerts.
+
+No flat list of timers. Just time, structured the way you think.
+
+<img src="assets/screenshot_1@2x.png" alt="Timestack timer view" width="320" />&nbsp;&nbsp;<img src="assets/screenshot_2@2x.png" alt="Timestack config editor" width="320" />
+
 </div>
 
----
+## Table of Contents
 
-Timestack is a countdown timer that nests. Define your agenda as a tree of timed segments — meetings, focus sessions, or anything with structure — and Timestack counts down through each layer with visual cues and audio alerts. No flat list of timers. Just time, structured the way you think.
+- [Download](#download)
+- [Features](#features)
+- [Config Format](#config-format)
+- [Contributing](#contributing)
+- [Architecture](#architecture)
+- [License](#license)
 
 ## Download
-
-Download the latest release for your platform:
 
 | Platform | Download                                                                     |
 | -------- | ---------------------------------------------------------------------------- |
@@ -75,8 +84,6 @@ Timers are defined as a tree of segments in JSON:
 }
 ```
 
-### Config Options
-
 | Field       | Description                                      | Example                    |
 | ----------- | ------------------------------------------------ | -------------------------- |
 | `duration`  | Time for a leaf segment                          | `"3m"`, `"90s"`, `"1m30s"` |
@@ -112,7 +119,7 @@ pnpm tauri:dev    # desktop app dev mode
 pnpm tauri:build  # desktop app build
 ```
 
-### Architecture
+## Architecture
 
 ```
 src/
