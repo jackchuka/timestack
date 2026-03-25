@@ -13,6 +13,7 @@ interface EngineState {
   remainingMs: number;
   overtimeMs: number;
   totalElapsedMs: number;
+  segmentStartElapsedMs: number;
 }
 
 export class TimerEngine {
@@ -31,6 +32,7 @@ export class TimerEngine {
       remainingMs: segments[0]?.node.durationMs ?? 0,
       overtimeMs: 0,
       totalElapsedMs: 0,
+      segmentStartElapsedMs: 0,
     };
   }
 
@@ -111,6 +113,7 @@ export class TimerEngine {
         remainingMs: this.segments[nextIndex].node.durationMs,
         overtimeMs: 0,
         pausedFrom: null,
+        segmentStartElapsedMs: this.state.totalElapsedMs,
       });
     }
   }
@@ -127,6 +130,7 @@ export class TimerEngine {
       pausedFrom: null,
       remainingMs: this.segments[prevIndex].node.durationMs,
       overtimeMs: 0,
+      segmentStartElapsedMs: this.state.totalElapsedMs,
     });
   }
 
@@ -182,6 +186,7 @@ export class TimerEngine {
       pausedFrom: null,
       remainingMs: this.segments[currentIndex].node.durationMs,
       overtimeMs: 0,
+      totalElapsedMs: this.state.segmentStartElapsedMs,
     });
   }
 
@@ -194,6 +199,7 @@ export class TimerEngine {
       remainingMs: this.segments[0].node.durationMs,
       overtimeMs: 0,
       totalElapsedMs: 0,
+      segmentStartElapsedMs: 0,
     });
   }
 
@@ -206,6 +212,7 @@ export class TimerEngine {
       pausedFrom: null,
       remainingMs: this.segments[index].node.durationMs,
       overtimeMs: 0,
+      segmentStartElapsedMs: this.state.totalElapsedMs,
     });
   }
 
@@ -281,6 +288,7 @@ export class TimerEngine {
             remainingMs: Math.max(0, this.segments[nextIndex].node.durationMs - overflowMs),
             overtimeMs: 0,
             totalElapsedMs,
+            segmentStartElapsedMs: totalElapsedMs,
           });
         }
       }

@@ -460,7 +460,7 @@ export function createEditor(
         "editor-node__duration" +
         (errors.some((e) => e.includes("duration")) ? " editor-node__duration--error" : "");
       durationInput.type = "text";
-      durationInput.placeholder = "e.g. 5m, 90s";
+      durationInput.placeholder = "1m";
       durationInput.value = node.duration ?? "";
       durationInput.addEventListener("input", () => {
         node.duration = durationInput.value;

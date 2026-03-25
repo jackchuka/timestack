@@ -1,4 +1,5 @@
 import type { SegmentState } from "../types";
+import { icons } from "./icons";
 
 interface ControlActions {
   onPlay: () => void;
@@ -20,29 +21,88 @@ export function createControls(
   update: (state: SegmentState, isFirst: boolean) => void;
   getContainer: () => HTMLElement;
   destroy: () => void;
+  isLocked: () => boolean;
+  toggleLock: () => void;
+  setMuted: (muted: boolean) => void;
 } {
   const controls = document.createElement("div");
   controls.className = "controls";
 
-  const backBtn = makeBtn("Back", "←", actions.onBack);
-  const skipBtn = makeBtn("Skip", "→", actions.onSkip);
-  const shrinkBtn = makeBtn("-30s", "-30", actions.onShrink);
-  const extendBtn = makeBtn("+30s", "+30", actions.onExtend);
-  const resetBtn = makeBtn("Reset", "↺", actions.onReset);
+  const backBtn = makeBtn("Back", icons.skipBack, actions.onBack);
+  const skipBtn = makeBtn("Skip", icons.skipForward, actions.onSkip);
+  const shrinkBtn = makeBtn("-30s", icons.minus, actions.onShrink);
+  const extendBtn = makeBtn("+30s", icons.plus, actions.onExtend);
+  const resetBtn = makeBtn("Reset", icons.rotateCcw, actions.onReset);
 
-  // Play/pause uses only onclick (swapped in update), no addEventListener
   const playPauseBtn = document.createElement("button");
   playPauseBtn.className = "btn btn--primary";
   playPauseBtn.title = "Play";
-  playPauseBtn.textContent = "▶";
+  playPauseBtn.innerHTML = icons.play;
   playPauseBtn.onclick = actions.onPlay;
 
-  controls.append(shrinkBtn, backBtn, playPauseBtn, skipBtn, extendBtn, resetBtn);
+  // Lock button
+  let locked = false;
+
+  const lockBtn = document.createElement("button");
+  lockBtn.className = "btn";
+  lockBtn.title = "Lock";
+  lockBtn.innerHTML = icons.lockOpen;
+  lockBtn.setAttribute("aria-pressed", "false");
+  lockBtn.addEventListener("click", () => toggleLock());
+
+  function toggleLock(): void {
+    locked = !locked;
+    lockBtn.innerHTML = locked ? icons.lock : icons.lockOpen;
+    lockBtn.title = locked ? "Unlock" : "Lock";
+    lockBtn.setAttribute("aria-pressed", String(locked));
+    lockBtn.classList.toggle("btn--locked", locked);
+  }
+
+  // Mute button
+  let muted = false;
+
+  const muteBtn = document.createElement("button");
+  muteBtn.className = "btn";
+  muteBtn.title = "Mute (M)";
+  muteBtn.innerHTML = icons.volume;
+  muteBtn.addEventListener("click", () => actions.onToggleMute());
+
+  function setMuted(m: boolean): void {
+    muted = m;
+    muteBtn.innerHTML = muted ? icons.volumeOff : icons.volume;
+    muteBtn.title = muted ? "Unmute (M)" : "Mute (M)";
+    muteBtn.classList.toggle("btn--muted", muted);
+  }
+
+  const topRow = document.createElement("div");
+  topRow.className = "controls__row";
+  topRow.append(backBtn, playPauseBtn, skipBtn);
+
+  const bottomRow = document.createElement("div");
+  bottomRow.className = "controls__row";
+  bottomRow.append(shrinkBtn, resetBtn, lockBtn, muteBtn, extendBtn);
+
+  controls.append(topRow, bottomRow);
   container.appendChild(controls);
 
   // Keyboard shortcuts — stored as named function for cleanup
   function onKeydown(e: KeyboardEvent): void {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    switch (e.key) {
+      case "l":
+      case "L":
+        toggleLock();
+        return;
+      case "f":
+      case "F":
+        actions.onToggleFullscreen();
+        return;
+      case "m":
+      case "M":
+        actions.onToggleMute();
+        return;
+    }
+    if (locked) return;
     switch (e.key) {
       case " ":
         e.preventDefault();
@@ -65,14 +125,6 @@ export function createControls(
       case "R":
         actions.onReset();
         break;
-      case "f":
-      case "F":
-        actions.onToggleFullscreen();
-        break;
-      case "m":
-      case "M":
-        actions.onToggleMute();
-        break;
     }
   }
 
@@ -84,16 +136,27 @@ export function createControls(
       const isPaused = state === "paused";
 
       if (isActive) {
-        playPauseBtn.textContent = "⏸";
+        playPauseBtn.innerHTML = icons.pause;
         playPauseBtn.title = "Pause";
         playPauseBtn.onclick = actions.onPause;
       } else {
-        playPauseBtn.textContent = "▶";
+        playPauseBtn.innerHTML = icons.play;
         playPauseBtn.title = "Play";
         playPauseBtn.onclick = actions.onPlay;
       }
       playPauseBtn.classList.toggle("btn--primary", isActive || isPaused);
 
+      if (locked) {
+        playPauseBtn.disabled = true;
+        backBtn.disabled = true;
+        skipBtn.disabled = true;
+        shrinkBtn.disabled = true;
+        extendBtn.disabled = true;
+        resetBtn.disabled = true;
+        return;
+      }
+
+      playPauseBtn.disabled = false;
       backBtn.disabled = isFirst;
       skipBtn.disabled = false;
       const timeAdjustDisabled = state === "pending" || state === "done";
@@ -105,14 +168,17 @@ export function createControls(
     destroy() {
       document.removeEventListener("keydown", onKeydown);
     },
+    isLocked: () => locked,
+    toggleLock,
+    setMuted,
   };
 }
 
-function makeBtn(title: string, label: string, onClick: () => void): HTMLButtonElement {
+function makeBtn(title: string, iconHtml: string, onClick: () => void): HTMLButtonElement {
   const btn = document.createElement("button");
   btn.className = "btn";
   btn.title = title;
-  btn.textContent = label;
+  btn.innerHTML = iconHtml;
   btn.addEventListener("click", onClick);
   return btn;
 }
