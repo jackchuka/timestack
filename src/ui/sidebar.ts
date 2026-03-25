@@ -34,7 +34,7 @@ export function createSidebar(
     el.style.paddingLeft = `${16 + depth * 16}px`;
 
     const dot = document.createElement("span");
-    dot.className = "tree-dot";
+    dot.className = `tree-dot tree-dot--${node.mode}`;
     dot.style.background = node.color;
 
     const name = document.createElement("span");
@@ -44,7 +44,14 @@ export function createSidebar(
     dur.className = "tree-duration";
     dur.textContent = formatTime(node.durationMs);
 
-    el.append(dot, name, dur);
+    if (node.isLeaf) {
+      const badge = document.createElement("span");
+      badge.className = `tree-mode tree-mode--${node.mode}`;
+      badge.title = node.mode;
+      el.append(dot, name, badge, dur);
+    } else {
+      el.append(dot, name, dur);
+    }
 
     if (node.isLeaf) {
       el.addEventListener("click", () => {

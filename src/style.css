@@ -202,6 +202,29 @@ body {
   padding-right: 4px;
 }
 
+/* Hard mode dot: square */
+.tree-dot--hard {
+  border-radius: 2px;
+}
+
+/* Mode icon */
+.tree-mode {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.tree-mode--hard {
+  background: var(--red);
+  border-radius: 1px;
+}
+
+.tree-mode--soft {
+  background: var(--green);
+  border-radius: 50%;
+}
+
 /* ── Tree node states ── */
 
 .tree-node--active {
