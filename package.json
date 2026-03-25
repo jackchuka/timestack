@@ -1,13 +1,13 @@
 {
   "name": "timestack",
   "version": "0.1.0",
+  "description": "Time, in layers. A countdown timer that nests.",
   "license": "MIT",
   "author": "jackchuka",
   "repository": {
     "type": "git",
     "url": "https://github.com/jackchuka/timestack.git"
   },
-  "description": "Time, in layers. A countdown timer that nests.",
   "type": "module",
   "scripts": {
     "dev": "vite",

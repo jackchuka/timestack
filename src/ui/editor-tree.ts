@@ -12,20 +12,8 @@ export function createEditorNode(): ConfigNode {
 export function addChild(node: ConfigNode, currentDepth = 0): void {
   if (currentDepth >= MAX_DEPTH) return;
   if (!node.children) {
-    const firstChild: ConfigNode = {
-      name: node.name || "Segment",
-      duration: node.duration || "1m",
-    };
-    if (node.mode) {
-      firstChild.mode = node.mode;
-      delete node.mode;
-    }
-    if (node.color) {
-      firstChild.color = node.color;
-      delete node.color;
-    }
     delete node.duration;
-    node.children = [firstChild, createEditorNode()];
+    node.children = [createEditorNode()];
   } else {
     node.children.push(createEditorNode());
   }

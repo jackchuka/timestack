@@ -22,18 +22,15 @@ describe("createEditorNode", () => {
 });
 
 describe("addChild", () => {
-  it("converts leaf to parent, moves leaf properties to new child", () => {
+  it("converts leaf to parent with one new child", () => {
     const leaf: ConfigNode = { name: "A", duration: "2m", mode: "soft", color: "#ff0000" };
     addChild(leaf);
-    expect(leaf.children).toHaveLength(2);
-    expect(leaf.children![0].duration).toBe("2m");
-    expect(leaf.children![0].mode).toBe("soft");
-    expect(leaf.children![0].color).toBe("#ff0000");
-    expect(leaf.children![1].name).toBe("Segment");
-    expect(leaf.children![1].duration).toBe("1m");
+    expect(leaf.children).toHaveLength(1);
+    expect(leaf.children![0].name).toBe("Segment");
+    expect(leaf.children![0].duration).toBe("1m");
     expect(leaf.duration).toBeUndefined();
-    expect(leaf.mode).toBeUndefined();
-    expect(leaf.color).toBeUndefined();
+    expect(leaf.mode).toBe("soft");
+    expect(leaf.color).toBe("#ff0000");
   });
 
   it("adds child to existing parent", () => {
