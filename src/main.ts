@@ -134,6 +134,7 @@ function reloadConfig(config: ConfigFile): void {
   timerPanelEl.innerHTML = "";
 
   sidebar = createSidebar(sidebarEl, tree, segments, (index) => {
+    if (controls?.isLocked()) return;
     audio.init();
     engine.jumpTo(index);
     setSidebarOpen(false);
@@ -182,6 +183,7 @@ function reloadConfig(config: ConfigFile): void {
     onToggleMute: () => {
       const muted = !audio.isMuted();
       audio.setMuted(muted);
+      controls.setMuted(muted);
     },
     onToggleFullscreen: () => {
       if (document.fullscreenElement) {
