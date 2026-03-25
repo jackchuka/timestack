@@ -41,7 +41,7 @@ navbar.className = "navbar";
 const navBrand = document.createElement("span");
 navBrand.className = "navbar__brand";
 const navLogo = document.createElement("img");
-navLogo.src = new URL("../logo.svg", import.meta.url).href;
+navLogo.src = new URL("../assets/logo.svg", import.meta.url).href;
 navLogo.alt = "Timestack";
 navLogo.className = "navbar__logo";
 navBrand.appendChild(navLogo);
