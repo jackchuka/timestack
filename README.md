@@ -27,6 +27,13 @@ No flat list of timers. Just time, structured the way you think.
 - [Architecture](#architecture)
 - [License](#license)
 
+### Homebrew (macOS)
+
+```bash
+brew install --cask jackchuka/tap/timestack
+xattr -cr /Applications/timestack.app
+```
+
 ## Download
 
 | Platform | Download                                                                     |
