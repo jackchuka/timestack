@@ -107,3 +107,21 @@ export function getDepth(node: ConfigNode, root: ConfigNode): number {
   }
   return find(root, 0);
 }
+
+export const DURATION_SLIDER_MIN = 5;
+export const DURATION_SLIDER_MAX = 1800;
+export const DURATION_SLIDER_STEP = 5;
+export const DURATION_STEP_BUTTON = 15;
+
+// Floor at 1s because parseDuration() rejects 0; this keeps the helper
+// total — round-tripping through parseDuration cannot fail.
+const MIN_DURATION_SECONDS = 1;
+
+export function secondsToDurationString(seconds: number): string {
+  const clamped = Math.max(MIN_DURATION_SECONDS, Math.floor(seconds));
+  const m = Math.floor(clamped / 60);
+  const s = clamped % 60;
+  if (m === 0) return `${s}s`;
+  if (s === 0) return `${m}m`;
+  return `${m}m${s}s`;
+}

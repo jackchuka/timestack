@@ -1,6 +1,6 @@
 // src/ui/editor.ts
 import type { ConfigFile, ConfigNode, SegmentMode } from "../types";
-import { validateConfig } from "../config";
+import { parseDuration, validateConfig } from "../config";
 import { saveConfig, downloadConfig, importConfigFromFile } from "../persistence";
 import { showAlert, showConfirm } from "./dialog";
 import { buildThemeSelector } from "../theme";
@@ -14,6 +14,11 @@ import {
   findParent,
   getDepth,
   MAX_DEPTH,
+  secondsToDurationString,
+  DURATION_SLIDER_MIN,
+  DURATION_SLIDER_MAX,
+  DURATION_SLIDER_STEP,
+  DURATION_STEP_BUTTON,
 } from "./editor-tree";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -70,6 +75,9 @@ export function createEditor(
   // Drag state
   let dragNode: ConfigNode | null = null;
   let dragParent: ConfigNode | null = null;
+
+  // Computed-total spans per parent node, refreshed when a descendant leaf changes.
+  const parentTotalSpans = new Map<ConfigNode, HTMLElement>();
 
   // ── DOM Shell ──────────────────────────────────────────────────────────────
   const overlay = document.createElement("div");
@@ -182,6 +190,7 @@ export function createEditor(
     // Tree section
     const treeSection = document.createElement("div");
     treeSection.className = "editor-tree";
+    parentTotalSpans.clear();
     renderNode(currentConfig.root, null, -1, 0, treeSection);
     body.appendChild(treeSection);
     treeContainer = treeSection;
@@ -306,9 +315,19 @@ export function createEditor(
   // ── Render tree section only ───────────────────────────────────────────────
   let treeContainer: HTMLElement | null = null;
 
+  function updateAncestorTotals(node: ConfigNode): void {
+    let current = findParent(node, currentConfig.root);
+    while (current) {
+      const span = parentTotalSpans.get(current);
+      if (span) span.textContent = computeDuration(current);
+      current = findParent(current, currentConfig.root);
+    }
+  }
+
   function renderTree(): void {
     if (!treeContainer) return;
     treeContainer.textContent = "";
+    parentTotalSpans.clear();
     renderNode(currentConfig.root, null, -1, 0, treeContainer);
     updateSaveBtn();
   }
@@ -448,30 +467,18 @@ export function createEditor(
     });
 
     // Duration / computed duration
-    let durationEl: HTMLElement;
+    let durationEl: HTMLElement | null;
+    let durationRow: HTMLElement | null = null;
+
     if (isParentNode) {
       const durationSpan = document.createElement("span");
       durationSpan.className = "editor-node__duration editor-node__duration--computed";
       durationSpan.textContent = computeDuration(node);
+      parentTotalSpans.set(node, durationSpan);
       durationEl = durationSpan;
     } else {
-      const durationInput = document.createElement("input");
-      durationInput.className =
-        "editor-node__duration" +
-        (errors.some((e) => e.includes("duration")) ? " editor-node__duration--error" : "");
-      durationInput.type = "text";
-      durationInput.placeholder = "1m";
-      durationInput.value = node.duration ?? "";
-      durationInput.addEventListener("input", () => {
-        node.duration = durationInput.value;
-        durationInput.className =
-          "editor-node__duration" +
-          (validateNode(node).some((e) => e.includes("duration"))
-            ? " editor-node__duration--error"
-            : "");
-        updateSaveBtn();
-      });
-      durationEl = durationInput;
+      durationEl = null;
+      durationRow = buildDurationRow(node);
     }
 
     // Mode section
@@ -556,19 +563,12 @@ export function createEditor(
     // Row assembly
     const row = document.createElement("div");
     row.className = "editor-node__row";
-    row.append(
-      dragHandle,
-      colorDot,
-      nameInput,
-      durationEl,
-      modeSection,
-      collapseBtn,
-      deleteBtn,
-      addChildBtn,
-      addSiblingBtn,
-    );
+    row.append(dragHandle, colorDot, nameInput);
+    if (durationEl) row.append(durationEl);
+    row.append(modeSection, collapseBtn, deleteBtn, addChildBtn, addSiblingBtn);
 
     card.appendChild(row);
+    if (durationRow) card.appendChild(durationRow);
     container.appendChild(card);
 
     // Children (recursive, only if not collapsed)
@@ -577,6 +577,131 @@ export function createEditor(
         renderNode(child, node, i, depth + 1, container);
       });
     }
+  }
+
+  // ── Duration row (slider + text input) for leaf nodes ─────────────────────
+  // Per-row closure: state lives in the DOM nodes built here. renderTree() rebuilds
+  // every node from scratch, so this function does not need to handle re-syncing.
+  function buildDurationRow(node: ConfigNode): HTMLElement {
+    const row = document.createElement("div");
+    row.className = "editor-node__duration-row";
+
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.className = "editor-node__duration-slider";
+    slider.min = String(DURATION_SLIDER_MIN);
+    slider.max = String(DURATION_SLIDER_MAX);
+    slider.step = String(DURATION_SLIDER_STEP);
+    slider.setAttribute("aria-label", "Duration in seconds");
+
+    const decBtn = document.createElement("button");
+    decBtn.type = "button";
+    decBtn.className = "editor-node__duration-step";
+    decBtn.textContent = "−";
+    decBtn.setAttribute("aria-label", `Decrease by ${DURATION_STEP_BUTTON} seconds`);
+
+    const incBtn = document.createElement("button");
+    incBtn.type = "button";
+    incBtn.className = "editor-node__duration-step";
+    incBtn.textContent = "+";
+    incBtn.setAttribute("aria-label", `Increase by ${DURATION_STEP_BUTTON} seconds`);
+
+    const valueInput = document.createElement("input");
+    valueInput.type = "text";
+    valueInput.className = "editor-node__duration-value";
+    valueInput.placeholder = "1m";
+
+    function currentSeconds(): number | null {
+      if (!node.duration) return null;
+      try {
+        return Math.round(parseDuration(node.duration) / 1000);
+      } catch {
+        return null;
+      }
+    }
+
+    function applyFill(): void {
+      const v = Number(slider.value);
+      const pct = ((v - DURATION_SLIDER_MIN) / (DURATION_SLIDER_MAX - DURATION_SLIDER_MIN)) * 100;
+      slider.style.setProperty("--pct", `${pct}%`);
+    }
+
+    function updateStepperState(): void {
+      const seconds = currentSeconds();
+      if (seconds === null) {
+        decBtn.disabled = true;
+        incBtn.disabled = true;
+        return;
+      }
+      decBtn.disabled = seconds <= DURATION_SLIDER_MIN;
+      incBtn.disabled = seconds >= DURATION_SLIDER_MAX;
+    }
+
+    function syncFromNode(): void {
+      const seconds = currentSeconds();
+      const clampedForSlider = Math.min(
+        DURATION_SLIDER_MAX,
+        Math.max(DURATION_SLIDER_MIN, seconds ?? DURATION_SLIDER_MIN),
+      );
+      slider.value = String(clampedForSlider);
+      valueInput.value = node.duration ?? "";
+      applyFill();
+      valueInput.classList.toggle("editor-node__duration--error", seconds === null);
+      updateStepperState();
+    }
+
+    function applySeconds(seconds: number): void {
+      const clamped = Math.min(DURATION_SLIDER_MAX, Math.max(DURATION_SLIDER_MIN, seconds));
+      const str = secondsToDurationString(clamped);
+      node.duration = str;
+      valueInput.value = str;
+      slider.value = String(clamped);
+      applyFill();
+      valueInput.classList.remove("editor-node__duration--error");
+      updateStepperState();
+      updateAncestorTotals(node);
+      updateSaveBtn();
+    }
+
+    slider.addEventListener("input", () => {
+      applySeconds(Number(slider.value));
+    });
+
+    valueInput.addEventListener("input", () => {
+      node.duration = valueInput.value;
+      const seconds = currentSeconds();
+      if (seconds === null) {
+        valueInput.classList.add("editor-node__duration--error");
+      } else {
+        valueInput.classList.remove("editor-node__duration--error");
+        const clampedForSlider = Math.min(
+          DURATION_SLIDER_MAX,
+          Math.max(DURATION_SLIDER_MIN, seconds),
+        );
+        slider.value = String(clampedForSlider);
+        applyFill();
+      }
+      updateStepperState();
+      updateAncestorTotals(node);
+      updateSaveBtn();
+    });
+
+    decBtn.addEventListener("click", () => {
+      const seconds = currentSeconds();
+      if (seconds === null) return;
+      applySeconds(seconds - DURATION_STEP_BUTTON);
+    });
+
+    incBtn.addEventListener("click", () => {
+      const seconds = currentSeconds();
+      if (seconds === null) return;
+      applySeconds(seconds + DURATION_STEP_BUTTON);
+    });
+
+    syncFromNode();
+
+    row.append(decBtn, slider, incBtn, valueInput);
+    return row;
   }
 
   // ── Node mode section ──────────────────────────────────────────────────────
