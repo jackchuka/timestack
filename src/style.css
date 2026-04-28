@@ -1017,8 +1017,8 @@ body {
     to right,
     var(--accent) 0%,
     var(--accent) var(--pct, 0%),
-    var(--bg-hover) var(--pct, 0%),
-    var(--bg-hover) 100%
+    var(--border-bright) var(--pct, 0%),
+    var(--border-bright) 100%
   );
   outline: none;
   cursor: pointer;
@@ -1035,7 +1035,7 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--bg-elevated);
+  background: #fff;
   border: 2px solid var(--accent);
   cursor: grab;
   transition: transform var(--transition);
@@ -1050,7 +1050,7 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--bg-elevated);
+  background: #fff;
   border: 2px solid var(--accent);
   cursor: grab;
   transition: transform var(--transition);
