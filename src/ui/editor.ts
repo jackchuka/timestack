@@ -76,6 +76,9 @@ export function createEditor(
   let dragNode: ConfigNode | null = null;
   let dragParent: ConfigNode | null = null;
 
+  // Computed-total spans per parent node, refreshed when a descendant leaf changes.
+  const parentTotalSpans = new Map<ConfigNode, HTMLElement>();
+
   // ── DOM Shell ──────────────────────────────────────────────────────────────
   const overlay = document.createElement("div");
   overlay.className = "editor-overlay";
@@ -187,6 +190,7 @@ export function createEditor(
     // Tree section
     const treeSection = document.createElement("div");
     treeSection.className = "editor-tree";
+    parentTotalSpans.clear();
     renderNode(currentConfig.root, null, -1, 0, treeSection);
     body.appendChild(treeSection);
     treeContainer = treeSection;
@@ -311,9 +315,19 @@ export function createEditor(
   // ── Render tree section only ───────────────────────────────────────────────
   let treeContainer: HTMLElement | null = null;
 
+  function updateAncestorTotals(node: ConfigNode): void {
+    let current = findParent(node, currentConfig.root);
+    while (current) {
+      const span = parentTotalSpans.get(current);
+      if (span) span.textContent = computeDuration(current);
+      current = findParent(current, currentConfig.root);
+    }
+  }
+
   function renderTree(): void {
     if (!treeContainer) return;
     treeContainer.textContent = "";
+    parentTotalSpans.clear();
     renderNode(currentConfig.root, null, -1, 0, treeContainer);
     updateSaveBtn();
   }
@@ -460,6 +474,7 @@ export function createEditor(
       const durationSpan = document.createElement("span");
       durationSpan.className = "editor-node__duration editor-node__duration--computed";
       durationSpan.textContent = computeDuration(node);
+      parentTotalSpans.set(node, durationSpan);
       durationEl = durationSpan;
     } else {
       durationEl = null;
@@ -644,6 +659,7 @@ export function createEditor(
       applyFill();
       valueInput.classList.remove("editor-node__duration--error");
       updateStepperState();
+      updateAncestorTotals(node);
       updateSaveBtn();
     }
 
@@ -666,6 +682,7 @@ export function createEditor(
         applyFill();
       }
       updateStepperState();
+      updateAncestorTotals(node);
       updateSaveBtn();
     });
 
