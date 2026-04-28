@@ -9,6 +9,7 @@ import {
   validateNode,
   countDescendants,
   findParent,
+  secondsToDurationString,
 } from "../src/ui/editor-tree";
 import type { ConfigNode } from "../src/types";
 
@@ -142,5 +143,31 @@ describe("findParent", () => {
   it("returns null for root", () => {
     const root: ConfigNode = { name: "R", children: [{ name: "A", duration: "1m" }] };
     expect(findParent(root, root)).toBeNull();
+  });
+});
+
+describe("secondsToDurationString", () => {
+  it("formats 5 seconds", () => {
+    expect(secondsToDurationString(5)).toBe("5s");
+  });
+
+  it("formats whole minutes", () => {
+    expect(secondsToDurationString(60)).toBe("1m");
+    expect(secondsToDurationString(180)).toBe("3m");
+    expect(secondsToDurationString(1800)).toBe("30m");
+  });
+
+  it("formats minutes plus seconds", () => {
+    expect(secondsToDurationString(90)).toBe("1m30s");
+    expect(secondsToDurationString(125)).toBe("2m5s");
+  });
+
+  it("clamps non-positive values to a valid duration", () => {
+    expect(secondsToDurationString(0)).toBe("1s");
+    expect(secondsToDurationString(-10)).toBe("1s");
+  });
+
+  it("floors fractional input", () => {
+    expect(secondsToDurationString(7.9)).toBe("7s");
   });
 });
