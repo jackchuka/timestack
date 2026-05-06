@@ -40,6 +40,7 @@ jobs:
 
       - name: Set version from tag
         run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version
+        shell: bash
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
