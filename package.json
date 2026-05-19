@@ -30,7 +30,7 @@
     "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",
     "typescript": "^6.0.2",
-    "vite": "^8.0.12",
+    "vite": "^8.0.13",
     "vite-plugin-singlefile": "^2.3.2",
     "vitest": "^4.1.6"
   },
