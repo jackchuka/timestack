@@ -28,7 +28,7 @@
     "jsdom": "^30.0.1",
     "knip": "^6.32.0",
     "oxfmt": "^0.62.0",
-    "oxlint": "^1.77.0",
+    "oxlint": "^1.78.0",
     "typescript": "^7.0.2",
     "vite": "^8.2.1",
     "vite-plugin-singlefile": "^2.3.2",
