@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.4",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.5.1",
     "jsdom": "^30.0.1",
     "knip": "^6.34.0",
     "oxfmt": "^0.66.0",
