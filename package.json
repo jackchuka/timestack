@@ -12,14 +12,17 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:types": "tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "lint": "oxlint src/ tests/",
-    "fmt": "oxfmt .",
+    "lint:fix": "oxlint --fix src/ tests/",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "typecheck": "tsc --noEmit",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run fmt:check && pnpm test",
     "knip": "knip"
   },
   "devDependencies": {
