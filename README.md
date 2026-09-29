@@ -7,8 +7,8 @@
 **Time, in layers.**
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Built with TypeScript](https://img.shields.io/badge/TypeScript-vanilla-3178c6.svg)]()
-[![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)]()
+![Built with TypeScript](https://img.shields.io/badge/TypeScript-vanilla-3178c6.svg)
+![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
 
 Timestack is a countdown timer that nests. Define your agenda as a tree of timed segments — meetings, focus sessions, or anything with structure — and Timestack counts down through each layer with visual cues and audio alerts.
 
@@ -118,9 +118,12 @@ pnpm dev          # Vite dev server at localhost:5173
 pnpm dev          # dev server
 pnpm build        # production build
 pnpm test         # run tests
-pnpm build:types  # typecheck
+pnpm typecheck    # tsc --noEmit
 pnpm lint         # oxlint
+pnpm lint:fix     # oxlint --fix
 pnpm fmt          # format code
+pnpm fmt:check    # check formatting
+pnpm check        # typecheck + lint + fmt:check + test
 pnpm knip         # dead code detection
 pnpm tauri:dev    # desktop app dev mode
 pnpm tauri:build  # desktop app build

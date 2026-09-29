@@ -9,10 +9,12 @@ pnpm dev          # Vite dev server
 pnpm build        # tsc + vite build (single-file output)
 pnpm test         # vitest single run
 pnpm vitest run tests/timer-engine.test.ts  # run one test file
-pnpm build:types  # typecheck (tsc --noEmit)
+pnpm typecheck    # tsc --noEmit
 pnpm lint         # oxlint
+pnpm lint:fix     # oxlint --fix
 pnpm fmt          # oxfmt (write)
-pnpm fmt --check .  # oxfmt (check only, for CI)
+pnpm fmt:check    # oxfmt (check only, for CI)
+pnpm check        # typecheck + lint + fmt:check + test
 pnpm knip         # dead code / unused export detection
 pnpm tauri:dev    # Tauri desktop app dev mode
 pnpm tauri:build  # Tauri desktop app build
@@ -24,8 +26,7 @@ Run the following commands to ensure code quality and correctness after making c
 
 ```bash
 pnpm fmt
-pnpm lint
-pnpm test
+pnpm check
 pnpm knip
 ```
 
