@@ -23,7 +23,7 @@
     "knip": "knip"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.11.4",
+    "@tauri-apps/cli": "^2.11.5",
     "@types/node": "^26.6.1",
     "jsdom": "^30.0.1",
     "knip": "^6.38.0",
